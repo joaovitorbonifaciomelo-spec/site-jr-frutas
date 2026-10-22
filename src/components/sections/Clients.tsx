@@ -27,6 +27,10 @@ export function Clients() {
           </div>
         </div>
       </Reveal>
+      {/* filete: separa da seção Produtos (também preta) que vem logo abaixo */}
+      <div className="container-site">
+        <div aria-hidden className="h-px bg-white/10" />
+      </div>
     </section>
   );
 }

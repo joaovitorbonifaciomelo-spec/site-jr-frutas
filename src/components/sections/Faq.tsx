@@ -7,19 +7,22 @@ export function Faq() {
   const cols = [faq.slice(0, half), faq.slice(half)];
 
   return (
-    <section id="faq" className="bg-black text-white">
+    <section id="faq" aria-labelledby="faq-titulo" className="bg-white text-black">
       <div className="container-site py-14 sm:py-16 lg:py-20">
         <Reveal>
-          <h2 className="h-section text-[1.5rem] sm:text-center sm:text-[1.7rem]">Dúvidas frequentes</h2>
+          <p className="eyebrow text-black/55 sm:text-center">FAQ</p>
+          <h2 id="faq-titulo" className="h-section mt-3 text-[1.5rem] sm:text-center sm:text-[1.7rem]">
+            Dúvidas frequentes
+          </h2>
         </Reveal>
 
-        {/* Mobile: uma coluna · Desktop: duas colunas, como na referência */}
+        {/* Mobile/tablet: uma coluna · Desktop: duas colunas */}
         <Reveal delay={80} className="mt-8 lg:hidden">
-          <Accordion tone="dark" items={faq.map((f) => ({ title: f.q, content: f.a }))} />
+          <Accordion tone="light" items={faq.map((f) => ({ title: f.q, content: f.a }))} />
         </Reveal>
-        <Reveal delay={80} className="mt-10 hidden grid-cols-2 gap-4 lg:grid">
+        <Reveal delay={80} className="mt-10 hidden grid-cols-2 items-start gap-4 lg:grid">
           {cols.map((col, i) => (
-            <Accordion key={i} tone="dark" items={col.map((f) => ({ title: f.q, content: f.a }))} />
+            <Accordion key={i} tone="light" items={col.map((f) => ({ title: f.q, content: f.a }))} />
           ))}
         </Reveal>
       </div>

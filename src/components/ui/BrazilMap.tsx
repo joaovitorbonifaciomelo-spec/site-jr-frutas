@@ -13,9 +13,14 @@ const brazil = brazilMap as { label: string; viewBox: string; locations: MapLoca
  * - Goiânia = Brasília + deslocamento geográfico real (−1,34° lon, −0,90° lat)
  *   convertido pela escala do mapa → (388.5, 344.4), dentro do path de GO.
  */
+/**
+ * Rótulos escalonados: os dois pinos ficam a ~25 unidades um do outro, então
+ * Goiânia vai para baixo/esquerda e Brasília para cima/direita (linha de chamada
+ * diagonal) — sem aperto/sobreposição quando o mapa é renderizado pequeno.
+ */
 const PINS = [
-  { id: "goiania", city: "Goiânia", label: "Unidade GO", x: 388.5, y: 344.4, side: "left" as const },
-  { id: "brasilia", city: "Brasília", label: "Unidade DF", x: 409.4, y: 329.7, side: "right" as const },
+  { id: "goiania", city: "Goiânia", label: "Unidade GO", x: 388.5, y: 344.4, side: "left" as const, dy: 34 },
+  { id: "brasilia", city: "Brasília", label: "Unidade DF", x: 409.4, y: 329.7, side: "right" as const, dy: -34 },
 ];
 
 const HIGHLIGHT = new Set(["go", "df"]);
@@ -63,7 +68,8 @@ export function BrazilMap({ className = "" }: Props) {
       {/* marcadores */}
       {PINS.map((p) => {
         const dir = p.side === "left" ? -1 : 1;
-        const lx = p.x + dir * 28;
+        const lx = p.x + dir * 34;
+        const ly = p.y + p.dy;
         const anchor = p.side === "left" ? "end" : "start";
         return (
           <g key={p.id}>
@@ -72,11 +78,16 @@ export function BrazilMap({ className = "" }: Props) {
               <animate attributeName="opacity" values="0.22;0;0.22" dur="2.8s" repeatCount="indefinite" />
             </circle>
             <circle cx={p.x} cy={p.y} r="5.5" fill="#fff" stroke="#000" strokeWidth="1.5" />
-            <line x1={p.x + dir * 7} y1={p.y} x2={lx - dir * 3} y2={p.y} stroke="rgba(255,255,255,0.6)" strokeWidth="1" />
-            <text x={lx} y={p.y - 4} textAnchor={anchor} fill="#fff" fontSize="18" fontWeight="800" fontFamily="var(--font-display)">
+            <polyline
+              points={`${p.x + dir * 5},${p.y + Math.sign(p.dy) * 5} ${p.x + dir * 22},${ly} ${lx - dir * 3},${ly}`}
+              fill="none"
+              stroke="rgba(255,255,255,0.6)"
+              strokeWidth="1.2"
+            />
+            <text x={lx} y={ly + 6} textAnchor={anchor} fill="#fff" fontSize="21" fontWeight="800" fontFamily="var(--font-display)">
               {p.city}
             </text>
-            <text x={lx} y={p.y + 13} textAnchor={anchor} fill="rgba(255,255,255,0.65)" fontSize="11" fontWeight="700" letterSpacing="1.2" fontFamily="var(--font-display)">
+            <text x={lx} y={ly + 22} textAnchor={anchor} fill="rgba(255,255,255,0.7)" fontSize="12.5" fontWeight="700" letterSpacing="1.2" fontFamily="var(--font-display)">
               {p.label.toUpperCase()}
             </text>
             <title>{`${p.city} — ${p.label}`}</title>

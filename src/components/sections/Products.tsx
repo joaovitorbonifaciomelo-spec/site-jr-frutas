@@ -5,76 +5,69 @@ import cocoSeco from "@/assets/images/coco-seco.webp";
 import cocoVerde from "@/assets/images/coco-verde.webp";
 import melao from "@/assets/images/melao-corte.webp";
 import { products, unitWhatsappLink, units, type Product } from "@/data/site";
-import { ButtonLink, TextLink } from "@/components/ui/Button";
-import { ArrowRight } from "@/components/ui/Icons";
+import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 
 const images: Record<Product["image"], StaticImageData> = { abacaxi, melancia, cocoSeco, cocoVerde, melao };
 
-/* Não existe página /produtos: o CTA da seção pede a lista completa pelo WhatsApp (Unidade Goiânia). */
+/* Não existe página de produto: o CTA pede a lista completa pelo WhatsApp (Unidade Goiânia). */
 const listHref =
   unitWhatsappLink(units[0], "Olá! Vim pelo site da JR Frutas e gostaria de receber a lista completa de produtos e a cotação do dia.") ??
-  "#cotacao";
+  "/#cotacao";
 
+/**
+ * Produtos — a fruta é a protagonista: foto em altura total, nome sobre a imagem.
+ * Mobile/tablet: carrossel com snap (1,3 cards no celular, ~2,3 no tablet).
+ * Desktop: 3+2 (1024) → 5 colunas (≥1280).
+ */
 export function Products() {
   return (
-    <section id="produtos" className="bg-white text-black">
+    <section id="produtos" aria-labelledby="produtos-titulo" className="bg-black text-white">
       <div className="container-site py-14 sm:py-20 lg:py-24">
-        {/* Cabeçalho desktop */}
-        <Reveal className="hidden items-end justify-between gap-8 sm:flex">
+        <Reveal className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="eyebrow text-black/55">Nosso portfólio</p>
-            <h2 className="h-section mt-3 max-w-[16ch]">Frutas selecionadas para o seu negócio.</h2>
+            <p className="eyebrow text-white/55">Produtos</p>
+            <h2 id="produtos-titulo" className="h-section mt-3 max-w-[16ch]">
+              Frutas selecionadas para o seu negócio.
+            </h2>
           </div>
-          <ButtonLink href={listHref} variant="outline-black" target="_blank" rel="noopener">
+          <ButtonLink href={listHref} variant="outline-white" target="_blank" rel="noopener" className="self-start sm:self-auto">
             Solicitar lista de produtos
           </ButtonLink>
         </Reveal>
 
-        {/* Cabeçalho mobile */}
-        <Reveal className="flex items-end justify-between gap-4 sm:hidden">
-          <h2 className="h-section">Nossos produtos</h2>
-          <TextLink href={listHref} className="mb-1 shrink-0 text-black">
-            Lista completa
-          </TextLink>
-        </Reveal>
-
-        {/* Mobile: carrossel horizontal (≈1.3 cards por viewport) · Desktop: grid 4 colunas */}
         <ul
-          className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:mt-12 sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:px-0 lg:grid-cols-6 lg:gap-5 xl:grid-cols-5 xl:gap-4"
-          aria-label="Produtos"
+          aria-label="Produtos (role para o lado)"
+          tabIndex={0}
+          className="no-scrollbar -mx-4 mt-8 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:-mx-6 sm:gap-4 sm:px-6 sm:mt-12 lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-5 lg:overflow-visible lg:px-0 xl:grid-cols-5 xl:gap-4"
         >
           {products.map((p, i) => (
             <Reveal
               as="li"
               key={p.slug}
               delay={i * 70}
-              className={`w-[76vw] max-w-[340px] shrink-0 snap-start sm:w-auto sm:max-w-none lg:col-span-2 xl:col-span-1 xl:col-start-auto ${i === 3 ? "lg:col-start-2" : ""}`}
+              className={`w-[76vw] max-w-[340px] shrink-0 snap-start sm:w-[42vw] lg:w-auto lg:max-w-none lg:col-span-2 xl:col-span-1 ${i === 3 ? "lg:col-start-2 xl:col-start-auto" : ""}`}
             >
-              <article className="group flex h-full flex-col rounded-[var(--radius-card)] border border-black/10 bg-white p-3 shadow-[var(--shadow-card)] transition-[transform,box-shadow] duration-500 ease-[var(--ease-out-soft)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)]">
-                <div className="relative aspect-[1/1] overflow-hidden rounded-[14px] bg-black">
-                  <Image
-                    src={images[p.image]}
-                    alt={p.alt}
-                    fill
-                    sizes="(min-width: 1280px) 220px, (min-width: 1024px) 300px, (min-width: 640px) 45vw, 76vw"
-                    placeholder="blur"
-                    className="object-cover transition-transform duration-[900ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.05]"
-                  />
-                  <div className="pointer-events-none absolute inset-0 rounded-[14px] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06),inset_0_-60px_60px_-30px_rgba(0,0,0,0.55)]" />
+              <article className="group relative aspect-[3/4.4] overflow-hidden rounded-[var(--radius-card)] bg-neutral-900">
+                <Image
+                  src={images[p.image]}
+                  alt={p.alt}
+                  fill
+                  sizes="(min-width: 1280px) 230px, (min-width: 1024px) 300px, (min-width: 640px) 42vw, 76vw"
+                  placeholder="blur"
+                  className="object-cover transition-transform duration-[1100ms] ease-[var(--ease-out-soft)] group-hover:scale-[1.06] motion-reduce:transition-none"
+                />
+                <div aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0)_45%,rgba(0,0,0,0.55)_68%,rgba(0,0,0,0.92)_100%)]" />
+                <div className="absolute inset-x-0 bottom-0 p-5 xl:p-4 2xl:p-5">
+                  <p aria-hidden className="font-display text-[0.7rem] font-extrabold tracking-[0.14em] text-white/60">
+                    {String(i + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-1 font-display text-[1.65rem] font-black leading-none tracking-[-0.03em] xl:text-[1.45rem] 2xl:text-[1.65rem]">
+                    {p.name}
+                  </h3>
+                  <p className="mt-2.5 text-[0.86rem] leading-snug text-white/78 xl:text-[0.82rem]">{p.short}</p>
                 </div>
-                <div className="flex flex-1 flex-col px-2 pt-5 pb-3 xl:px-1">
-                  <h3 className="h-card">{p.name}</h3>
-                  <p className="mt-2.5 text-[0.9rem] leading-relaxed text-black/65">{p.short}</p>
-                  <details className="group/d mt-auto pt-5">
-                    <summary className="flex cursor-pointer list-none items-center gap-2 text-[0.72rem] font-bold uppercase tracking-[0.14em] [&::-webkit-details-marker]:hidden">
-                      <span className="group-open/d:hidden">Saiba mais</span>
-                      <span className="hidden group-open/d:inline">Fechar</span>
-                      <ArrowRight size={15} className="transition-transform duration-300 group-open/d:rotate-90" />
-                    </summary>
-                    <p className="mt-3 text-[0.88rem] leading-relaxed text-black/70">{p.description}</p>
-                  </details>
-                </div>
+                <div aria-hidden className="pointer-events-none absolute inset-0 rounded-[var(--radius-card)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]" />
               </article>
             </Reveal>
           ))}

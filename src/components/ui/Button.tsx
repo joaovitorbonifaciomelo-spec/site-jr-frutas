@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { ArrowRight } from "./Icons";
 
-type Variant = "white" | "black" | "outline-white" | "outline-black" | "ghost";
+type Variant = "white" | "black" | "outline-white" | "outline-black" | "ghost" | "skin" | "skin-outline";
 type Size = "md" | "lg";
 
 const variants: Record<Variant, string> = {
@@ -12,6 +12,9 @@ const variants: Record<Variant, string> = {
   "outline-white": "bg-transparent text-white border border-white/70 hover:bg-white hover:text-black",
   "outline-black": "bg-transparent text-black border border-black/30 hover:border-black hover:bg-black hover:text-white",
   ghost: "bg-transparent text-current border border-transparent hover:opacity-70",
+  /* seguem a skin da página/seção ([data-skin] em globals.css) */
+  skin: "bg-sk-fg text-sk-bg border border-sk-fg hover:opacity-85",
+  "skin-outline": "bg-transparent text-sk-fg border border-sk-fg/45 hover:bg-sk-fg hover:text-sk-bg hover:border-sk-fg",
 };
 
 const sizes: Record<Size, string> = {

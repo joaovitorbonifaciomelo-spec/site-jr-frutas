@@ -27,10 +27,78 @@
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* -------------------------------------------------------------------------
+   SKINS — um único conjunto de componentes, cores por operação.
+   Uso: <div data-skin="jrCoco"> + utilities bg-sk-bg, text-sk-fg, text-sk-muted,
+   border-sk-line, bg-sk-surface (inversão: bg-sk-fg text-sk-bg).
+   Nenhuma página duplica CSS: só os tokens mudam.
+   ------------------------------------------------------------------------- */
+@theme inline {
+  --color-sk-bg: var(--sk-bg);
+  --color-sk-fg: var(--sk-fg);
+  --color-sk-muted: var(--sk-muted);
+  --color-sk-line: var(--sk-line);
+  --color-sk-surface: var(--sk-surface);
+}
+
+:root,
+[data-skin="jrFrutas"] {
+  --sk-bg: #050505;
+  --sk-fg: #ffffff;
+  --sk-muted: rgb(255 255 255 / 0.7);
+  --sk-line: rgb(255 255 255 / 0.14);
+  --sk-surface: #111111;
+}
+/* JR COCO — escuro, cinematográfico */
+[data-skin="jrCoco"] {
+  --sk-bg: #070807;
+  --sk-fg: #ffffff;
+  --sk-muted: rgb(255 255 255 / 0.68);
+  --sk-line: rgb(255 255 255 / 0.13);
+  --sk-surface: #121412;
+}
+/* Bela Fruta — branco editorial */
+[data-skin="belaFruta"] {
+  --sk-bg: #ffffff;
+  --sk-fg: #0a0a0a;
+  --sk-muted: rgb(10 10 10 / 0.64);
+  --sk-line: rgb(10 10 10 / 0.11);
+  --sk-surface: #f3f3f1;
+}
+/* FRUTAFORTE — claro documental (papel) */
+[data-skin="frutaforte"] {
+  --sk-bg: #f1eee6;
+  --sk-fg: #151512;
+  --sk-muted: rgb(21 21 18 / 0.66);
+  --sk-line: rgb(21 21 18 / 0.13);
+  --sk-surface: #e6e2d6;
+}
+/* Abacaxi.com — preto com ícones brancos */
+[data-skin="abacaxi"] {
+  --sk-bg: #000000;
+  --sk-fg: #ffffff;
+  --sk-muted: rgb(255 255 255 / 0.68);
+  --sk-line: rgb(255 255 255 / 0.15);
+  --sk-surface: #0e0e0e;
+}
+
+/* Altura do header fixo — usada por âncoras e pelos palcos sticky */
+:root {
+  --header-h: 72px;
+}
+@media (width >= 64rem) {
+  :root {
+    --header-h: 76px;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+  }
+  [id] {
+    scroll-margin-top: var(--header-h);
   }
   body {
     background: var(--color-ink);
@@ -106,6 +174,23 @@
   font-size: clamp(1.7rem, 1.15rem + 1.8vw, 2.45rem);
   line-height: 1.08;
   font-weight: 800;
+}
+
+/* Numerais monumentais (1994, capítulos) */
+@utility h-mega {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 0.82;
+  letter-spacing: -0.055em;
+}
+
+/* Legenda documental (FRUTAFORTE e galerias) */
+@utility caption {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 @utility h-card {

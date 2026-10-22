@@ -1,20 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { mediaBudget, pickRendition, portraitSet, posterSrcSet, type VideoSet } from "@/lib/video";
+
+/** Loop do hub — mesmo corte de antes, regenerado dos ORIGINAIS de câmera (720/1080). */
+const LOOP = portraitSet("/video/links-loop", "/video/links-poster");
+/** No celular o vídeo fica sob overlay + glass: 720 basta e economiza dados (bio do Instagram). */
+const LOOP_MOBILE: VideoSet = { ...LOOP, renditions: LOOP.renditions.filter((r) => r.width <= 720) };
 
 type Props = {
   /** true quando o bottom sheet está aberto → escurece/desfoca um pouco mais */
   dimmed?: boolean;
 };
 
-type NetInfo = { saveData?: boolean; effectiveType?: string };
-
 /**
  * Fundo em vídeo real da operação (loop curto, sem áudio).
  *
- * Ordem de carregamento: fundo preto (CSS) → interface → poster (WebP leve,
- * <img> nativo com fetchpriority high) → vídeo (só após hidratação).
- * O vídeo NÃO entra quando: prefers-reduced-motion, Save-Data ou conexão 2g.
+ * Ordem de carregamento: fundo preto (CSS) → interface → poster (WebP, srcset
+ * 720/1080, <img> nativo com fetchpriority high) → vídeo (só após hidratação).
+ * Versão escolhida por lib/video.ts: reduced-motion/Save-Data → só poster;
+ * 2G/3G/pouca memória → 720; demais → pelo tamanho físico da tela (no celular, até 720).
  * Se falhar (onError), o poster assume automaticamente.
  * Overlay leve + gradientes localizados (topo/base) — o vídeo continua visível.
  *
@@ -23,21 +28,22 @@ type NetInfo = { saveData?: boolean; effectiveType?: string };
  * estratégia validada no hub da Frutas Beca. Diagnóstico A/B: ?debug=1.
  */
 export function VideoBackground({ dimmed = false }: Props) {
-  const [allowVideo, setAllowVideo] = useState(false);
+  const [src, setSrc] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const net = (navigator as Navigator & { connection?: NetInfo }).connection;
-    const limited = !!net?.saveData || /(^|-)2g$/.test(net?.effectiveType ?? "");
-    const apply = () => setAllowVideo(!mq.matches && !limited);
+    const apply = () => {
+      const set = window.matchMedia("(min-width: 768px)").matches ? LOOP : LOOP_MOBILE;
+      setSrc(pickRendition(set, window.innerWidth, window.innerHeight, mediaBudget())?.src ?? null);
+    };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  const showVideo = allowVideo && !failed;
+  const showVideo = !!src && !failed;
 
   return (
     <div
@@ -49,7 +55,9 @@ export function VideoBackground({ dimmed = false }: Props) {
       {/* Poster: <img> nativo para não depender do runtime do next/image na primeira pintura */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/video/links-poster.webp"
+        src={LOOP.posters[0].src}
+        srcSet={posterSrcSet(LOOP)}
+        sizes="100vw"
         alt=""
         width={720}
         height={1280}
@@ -62,8 +70,8 @@ export function VideoBackground({ dimmed = false }: Props) {
           className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 lg:scale-105 ${
             ready ? "opacity-100" : "opacity-0"
           }`}
-          src="/video/links-loop.mp4"
-          poster="/video/links-poster.webp"
+          src={src ?? undefined}
+          data-rendition={src?.split("/").pop()}
           autoPlay
           muted
           loop

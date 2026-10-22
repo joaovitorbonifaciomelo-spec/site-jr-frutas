@@ -1,24 +1,15 @@
 import type { Metadata } from "next";
 import { site } from "@/data/site";
 import { LinksHub } from "@/components/links/LinksHub";
+import { pageMetadata } from "@/lib/seo";
 
-const ogTitle = `${site.shortName} — WhatsApp, produtos e unidades`;
-const ogDescription = "Atacado de abacaxi, melancia e coco em Goiânia e Brasília. Fale com a JR Frutas.";
-
-export const metadata: Metadata = {
-  title: { absolute: `${site.shortName} · Links` },
-  description: ogDescription,
-  alternates: { canonical: "/links" },
-  openGraph: {
-    type: "website",
-    siteName: site.name,
-    title: ogTitle,
-    description: ogDescription,
-    url: "/links",
-    images: [{ url: "/og-links.jpg", width: 1200, height: 630, alt: site.name }],
-  },
-  twitter: { card: "summary_large_image", title: ogTitle, description: ogDescription, images: ["/og-links.jpg"] },
-};
+export const metadata: Metadata = pageMetadata({
+  title: `${site.shortName} — WhatsApp, produtos e unidades`,
+  description: "Atacado de abacaxi, melancia, coco e melão desde 1994, em Goiânia e Brasília. Fale com a JR Frutas.",
+  path: "/links",
+  image: "/og-links.jpg",
+  absolute: true,
+});
 
 /**
  * /links — hub de direcionamento para a bio do Instagram.

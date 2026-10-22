@@ -21,7 +21,10 @@ export type HubEvent =
   | "hub_share"
   | "hub_save_contact"
   | "hub_maps"
-  | "hub_copy_address";
+  | "hub_copy_address"
+  | "hub_empresas"
+  | "hub_empresa"
+  | "hub_desenvolvedor";
 
 export function track(event: HubEvent, params: Record<string, string> = {}) {
   if (typeof window === "undefined") return;

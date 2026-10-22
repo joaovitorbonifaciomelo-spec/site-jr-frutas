@@ -16,7 +16,7 @@ type Props = {
   priority?: boolean;
 };
 
-export function Logo({ variant = "horizontal", tone = "white", height = 44, className = "", href = "#inicio", priority }: Props) {
+export function Logo({ variant = "horizontal", tone = "white", height = 44, className = "", href = "/", priority }: Props) {
   const inner =
     variant === "horizontal" ? (
       <span className={`inline-flex items-center gap-[0.55em] ${className}`} style={{ fontSize: height }}>

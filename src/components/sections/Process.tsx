@@ -1,81 +1,56 @@
 import { Boxes, ClipboardCheck, Tractor, Truck, type LucideIcon } from "lucide-react";
 import { processSteps, type ProcessStep } from "@/data/site";
-import { Accordion } from "@/components/ui/Accordion";
-import { ArrowRight } from "@/components/ui/Icons";
+import { Reveal } from "@/components/ui/Reveal";
 
-/** Ícones das etapas: família única (Lucide), lineares, stroke 1.5, monocromáticos */
+/** Ícones das etapas: família única (Lucide), lineares, monocromáticos */
 const stepIcons: Record<ProcessStep["icon"], LucideIcon> = {
   field: Tractor,
   select: ClipboardCheck,
   truck: Truck,
   box: Boxes,
 };
-import { Reveal } from "@/components/ui/Reveal";
 
+/**
+ * Processo — editorial: numeral grande, régua contínua, texto completo visível
+ * (sem accordion). Desktop 4 colunas · tablet 2×2 · mobile lista com numeral à esquerda.
+ */
 export function Process() {
   return (
-    <section id="processo" className="bg-black text-white">
-      <div className="container-site py-14 sm:py-16 lg:py-20">
-        {/* ---------- DESKTOP: faixa horizontal com setas ---------- */}
-        <div className="hidden lg:block">
-          <Reveal>
-            <h2 className="h-section text-center">Nosso processo. Do campo ao seu negócio.</h2>
-          </Reveal>
-          <ol className="mt-12 grid grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] items-start gap-x-4 lg:gap-x-8">
-            {processSteps.map((s, i) => (
-              <Step key={s.number} step={s} index={i} last={i === processSteps.length - 1} />
-            ))}
-          </ol>
-        </div>
+    <section id="processo" aria-labelledby="processo-titulo" className="bg-black text-white">
+      <div className="container-site py-14 sm:py-20 lg:py-24">
+        <Reveal className="max-w-[640px]">
+          <p className="eyebrow text-white/55">Processo</p>
+          <h2 id="processo-titulo" className="h-section mt-3">
+            Do campo ao seu negócio, em quatro etapas.
+          </h2>
+        </Reveal>
 
-        {/* ---------- MOBILE: accordion vertical ---------- */}
-        <div className="lg:hidden">
-          <Reveal>
-            <h2 className="h-section">Como funciona</h2>
-          </Reveal>
-          <Reveal delay={80} className="mt-6">
-            <Accordion
-              tone="dark"
-              defaultOpen={0}
-              items={processSteps.map((s) => ({
-                leading: (
-                  <span className="grid size-10 place-items-center rounded-full border border-white/30">
-                    <StepIcon icon={s.icon} size={18} />
-                  </span>
-                ),
-                title: `${Number(s.number)}. ${s.title}`,
-                subtitle: s.description,
-                content: s.detail,
-              }))}
-            />
-          </Reveal>
-        </div>
+        <ol className="mt-10 grid gap-x-8 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-x-0">
+          {processSteps.map((s, i) => {
+            const StepIcon = stepIcons[s.icon];
+            return (
+              <Reveal
+                as="li"
+                key={s.number}
+                delay={i * 90}
+                className="grid grid-cols-[64px_minmax(0,1fr)] gap-x-4 border-t border-white/15 py-7 sm:block sm:py-8 lg:border-t-0 lg:py-0 lg:pr-8 lg:[&:not(:first-child)]:border-l lg:[&:not(:first-child)]:border-white/12 lg:[&:not(:first-child)]:pl-8"
+              >
+                <span aria-hidden className="h-mega text-[3.4rem] text-white/90 sm:text-[4.2rem] lg:text-[5rem]">
+                  {s.number}
+                </span>
+                <div className="sm:mt-6">
+                  <div className="flex items-center gap-3">
+                    <StepIcon size={22} strokeWidth={1.5} absoluteStrokeWidth aria-hidden className="shrink-0 text-white/70" />
+                    <h3 className="font-display text-[1.3rem] font-black tracking-[-0.02em]">{s.title}</h3>
+                  </div>
+                  <p className="mt-3 text-[0.98rem] font-semibold leading-snug text-white/90">{s.description}</p>
+                  <p className="mt-2.5 text-[0.9rem] leading-relaxed text-white/60">{s.detail}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+        </ol>
       </div>
     </section>
   );
-}
-
-function Step({ step, index, last }: { step: (typeof processSteps)[number]; index: number; last: boolean }) {
-  return (
-    <>
-      <Reveal as="li" delay={index * 90} className="flex flex-col items-center text-center">
-        <span className="font-display text-[1.15rem] font-extrabold tracking-[-0.02em] text-white/90">{step.number}</span>
-        <span className="eyebrow mt-2 text-white">{step.title}</span>
-        <span className="mt-5 grid size-24 place-items-center rounded-full border-2 border-white/35 bg-white/[0.04] text-white shadow-[inset_0_0_0_6px_rgba(0,0,0,1),0_0_0_1px_rgba(255,255,255,0.08)] transition-[border-color,background-color] duration-300 hover:border-white/70 hover:bg-white/[0.08]">
-          <StepIcon icon={step.icon} size={44} />
-        </span>
-        <p className="mt-5 max-w-[22ch] text-[0.88rem] leading-relaxed text-white/70">{step.description}</p>
-      </Reveal>
-      {!last ? (
-        <li aria-hidden className="mt-[118px] flex justify-center text-white/60">
-          <ArrowRight size={40} strokeWidth={1.2} />
-        </li>
-      ) : null}
-    </>
-  );
-}
-
-function StepIcon({ icon, size }: { icon: ProcessStep["icon"]; size: number }) {
-  const Cmp = stepIcons[icon];
-  return <Cmp size={size} strokeWidth={1.5} absoluteStrokeWidth aria-hidden />;
 }

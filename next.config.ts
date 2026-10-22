@@ -7,9 +7,9 @@ const nextConfig: NextConfig = {
     // 85 = artes de produto (seção de cotação); 75 = padrão
     qualities: [75, 85],
   },
-  // O projeto vive no Google Drive e é executado via junctions em um runner
-  // local (ver run.ps1). Mantém os caminhos sob o runner para que a resolução
-  // de node_modules (Tailwind, React) funcione a partir de src/.
+  // Herdado da época em que o projeto rodava do Google Drive via junctions
+  // (runner). Em disco local não é necessário, mas é inofensivo — mantido
+  // para não alterar a resolução de módulos do site.
   webpack: (config) => {
     config.resolve.symlinks = false;
     return config;

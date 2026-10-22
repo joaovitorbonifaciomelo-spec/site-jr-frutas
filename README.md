@@ -4,23 +4,19 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4. Sem depend
 
 ## Rodar localmente
 
-Esta pasta fica no Google Drive, que **não suporta** as gravações concorrentes do `npm install`
-(erro `EBADF`) nem junctions/symlinks. Por isso o projeto é executado por um "runner" local:
+O projeto fica em disco local (`C:\Projetos\jr-frutas`) e o backup/histórico no GitHub
+(`joaovitorbonifaciomelo-spec/JRFRUTAS`). **Não desenvolver de dentro do Google Drive** — o Drive
+não suporta as gravações do `npm install` (erro `EBADF`); foi por isso que existiu o antigo
+"runner" (`run.ps1`), removido em 22/10/2026.
 
 ```powershell
-.\run.ps1 install     # instala dependências (uma vez)
-.\run.ps1 dev         # http://localhost:3000
-.\run.ps1 lint
-.\run.ps1 typecheck
-.\run.ps1 build
-.\run.ps1 start
+npm install          # instala dependências (uma vez, ou ao clonar do GitHub)
+npm run dev          # http://localhost:3000
+npm run lint
+npm run typecheck
+npm run build
+npm run start
 ```
-
-O `run.ps1` cria `%USERPROFILE%\dev\jr-frutas-runner` com `node_modules` e `.next` em disco
-local, junctions `src/` e `public/` apontando para **esta pasta** (o código continua aqui) e uma
-cópia dos arquivos de configuração. Se o projeto for movido para um disco local/repositório git,
-basta usar `npm install` / `npm run dev` normalmente (os scripts usam `--webpack` por causa das
-junctions; em disco local o Turbopack padrão também funciona).
 
 ## Estrutura
 

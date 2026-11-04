@@ -1,10 +1,15 @@
-# Pacote de produção e repositório de deploy
+# Pacote de produção e branch de deploy
 
-Fluxo: projeto fonte → build local → `out/` → repositório separado de deploy → Git → Plesk → `httpdocs`.
+Fluxo: `main` (código-fonte) → build local → `out/` → branch `deploy` (site estático) → Plesk → `httpdocs`.
 
 O build é feito na máquina local. Produção não usa Node.js.
 
-**Status:** procedimento documentado, ainda não executado. Nada disto cria repositório, configura o Plesk ou publica o site.
+**Status:** o pacote local está em `C:\Projetos\jr-frutas-deploy`, ainda sem remoto. A branch `deploy` ainda não existe e o site ainda não foi publicado.
+
+- `main` guarda o código-fonte. O Plesk nunca serve esta branch.
+- `deploy` guarda só o build estático e é a branch que o Plesk servirá. Ela não compartilha histórico com o `main`.
+
+Este arquivo fica só no `main`. Não copie documentação para a branch `deploy`, porque ela vai para `httpdocs`.
 
 ## 1. Gerar o pacote
 
@@ -64,28 +69,37 @@ npm run preview   # http://localhost:4173
 
 As páginas `/`, `/links/`, as 4 empresas, `/politica-de-privacidade/`, `/termos-de-uso/` e uma rota inexistente precisam abrir direto e com F5, sem erro de console. Canonical e Open Graph apontam para o domínio final, então não siga esses links neste teste. O servidor de preview não lê o `.htaccess`: redirects e 410 só podem ser testados em Apache.
 
-## 3. Sincronizar com o repositório de deploy
+## 3. Sincronizar com a branch `deploy`
 
-O repositório de deploy é separado e sua raiz equivale ao conteúdo de `out/`, com `.htaccess` ao lado de `index.html`. Exemplo com clone em `C:\Projetos\jr-frutas-deploy`:
+A pasta `C:\Projetos\jr-frutas-deploy` é a cópia local da branch `deploy`. Sua raiz equivale ao conteúdo de `out/`, com `.htaccess` ao lado de `index.html`. O `.gitignore` dela existe só lá e é preservado na sincronização.
 
 ```powershell
-# /MIR espelha: apaga no destino o que não existe em out\. /XD .git preserva o repositório.
-robocopy out C:\Projetos\jr-frutas-deploy /MIR /XD .git
+# /MIR espelha: apaga no destino o que não existe em out\. /XD e /XF preservam o Git do deploy.
+robocopy out C:\Projetos\jr-frutas-deploy /MIR /XD .git /XF .gitignore
 # Códigos de saída 0 a 7 são sucesso no robocopy; 8 ou mais indica falha.
 
 git -C C:\Projetos\jr-frutas-deploy status
+git -C C:\Projetos\jr-frutas-deploy diff --stat
 git -C C:\Projetos\jr-frutas-deploy add -A
-git -C C:\Projetos\jr-frutas-deploy commit -m "Publicação: <hash curto do projeto fonte>"
+git -C C:\Projetos\jr-frutas-deploy commit -m "Publicação: <hash curto do main>"
+git -C C:\Projetos\jr-frutas-deploy push origin deploy
 ```
 
-Confira `git status` antes do commit. Na primeira sincronização, use um clone vazio e confirme que o destino é o correto, porque `/MIR` apaga o que não está em `out\`.
+Confira as diferenças antes do commit e o destino antes de rodar, porque `/MIR` apaga o que não está em `out\`. Depois do push, o Plesk faz o deploy.
 
-O repositório de deploy **não** recebe: `src`, `node_modules`, `.env`, `package.json`, scripts, masters, legado, arquivos do Drive, banco ou documentação interna. Também não recebe README.
+A branch `deploy` **não** recebe: `src`, `node_modules`, `.env`, `package.json`, scripts, masters, legado, arquivos do Drive, banco ou documentação interna. Também não recebe README.
 
-## 4. Antes de publicar
+## 4. Atualizações futuras
 
-- Reescrever e testar as regras de HTTPS e `www` no `.htaccess`. As regras comentadas foram escritas para o domínio sem `www`.
+1. Alterar o código no `main` e fazer commit.
+2. Gerar e verificar o pacote (seções 1 e 2).
+3. Sincronizar, conferir as diferenças e fazer commit e push na branch `deploy` (seção 3).
+4. O Plesk faz o deploy.
+
+## 5. Antes da primeira publicação
+
+- Configurar no Plesk o redirecionamento permanente para HTTPS e o domínio preferencial `https://www.jrfrutas.com.br`. As regras equivalentes ficam comentadas no `.htaccess` para evitar loop atrás do proxy.
 - Testar o `.htaccess` em Apache real. Até aqui só houve simulação das regras.
 - Fazer backup do `httpdocs` atual e tirar da pasta pública o Laravel, o `.env`, o `.git`, os SQLs e o CMS. O bloqueio do `.htaccess` é só uma segunda barreira.
 - Decidir `/pagina-inicial`, `/uploads/*`, `/app`, `/app-raddar` e `/site-antigo`.
-- Confirmar qual pasta o Plesk usa como destino do deploy e se o `.git` fica fora da raiz pública.
+- Configurar o Plesk para usar a branch `deploy` com destino em `httpdocs`, e confirmar que o `.git` fica fora da raiz pública.

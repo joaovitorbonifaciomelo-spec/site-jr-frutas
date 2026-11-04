@@ -1,5 +1,5 @@
 # JR Frutas: site estático em httpdocs/ (Apache/Plesk)
-# STATUS: PARA REVISÃO. NÃO PUBLICADO. Ainda não foi testado em Apache real.
+# STATUS: NÃO PUBLICADO. Ainda não foi testado em Apache real: validar no primeiro deploy.
 # Origem do mapa: docs/redirects/legacy-redirects.json
 
 Options -Indexes -MultiViews
@@ -23,15 +23,15 @@ ErrorDocument 410 /404.html
   RewriteBase /
 
   # ---------------------------------------------------------------------------
-  # HTTPS E DOMÍNIO: DECIDIR NO CORTE. Domínio previsto: https://www.jrfrutas.com.br.
-  # As regras comentadas abaixo foram escritas para o domínio sem www: reescrever antes de usar.
-  # Preferir a opção de redirecionamento HTTPS do próprio Plesk. Se usar as regras
-  # abaixo, testar antes: atrás do proxy do Plesk elas podem causar loop.
+  # HTTPS E DOMÍNIO. Domínio canônico: https://www.jrfrutas.com.br
+  # O redirecionamento fica a cargo do Plesk (opção de redirecionamento permanente
+  # para HTTPS e domínio preferencial www). As regras abaixo ficam comentadas porque,
+  # atrás do proxy do Plesk, podem causar loop. Só ativar se o Plesk não resolver,
+  # e testar antes.
   # ---------------------------------------------------------------------------
-  # RewriteCond %{HTTPS} !=on
-  # RewriteRule ^ https://jrfrutas.com.br%{REQUEST_URI} [R=301,L,NE]
-  # RewriteCond %{HTTP_HOST} ^www\.jrfrutas\.com\.br$ [NC]
-  # RewriteRule ^ https://jrfrutas.com.br%{REQUEST_URI} [R=301,L,NE]
+  # RewriteCond %{HTTPS} !=on [OR]
+  # RewriteCond %{HTTP_HOST} !^www\.jrfrutas\.com\.br$ [NC]
+  # RewriteRule ^ https://www.jrfrutas.com.br%{REQUEST_URI} [R=301,L,NE]
 
   # ---------------------------------------------------------------------------
   # PROTEÇÃO: 404 para arquivos ocultos e restos do Laravel/CMS

@@ -37,6 +37,10 @@ httpdocs/
 *.7z
 *.rar
 
+# arquivos-fonte da Marine (OTF e PDF): só local; o site usa apenas os WOFF2
+src/assets/fonts/*.otf
+src/assets/fonts/*.pdf
+
 # segredos
 *.pem
 *.key

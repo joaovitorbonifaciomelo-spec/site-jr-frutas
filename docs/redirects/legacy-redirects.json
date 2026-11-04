@@ -1,0 +1,166 @@
+{
+  "_status": "PREPARADO — NÃO ATIVO. Mapa de referência do docs/redirects/.htaccess (Apache/Plesk). Nada aqui é lido pelo Next.js.",
+  "_source": "docs/legacy-urls.csv (auditoria do legado, Fase 0)",
+  "_rules": [
+    "Não redirecionar em massa para /.",
+    "URLs contaminadas (FAQ de outro cliente, depoimentos fictícios) recebem 410, não 301.",
+    "Itens 'unconfirmed' só entram depois de verificar que respondem 200 no domínio atual."
+  ],
+  "permanent": [
+    {
+      "source": "/jr-frutas",
+      "destination": "/#quem-somos",
+      "note": "página Sobre do legado"
+    },
+    {
+      "source": "/produtos",
+      "destination": "/#produtos",
+      "note": "listagem de produtos"
+    },
+    {
+      "source": "/produtos/abacaxi",
+      "destination": "/#produtos"
+    },
+    {
+      "source": "/produtos/melancia",
+      "destination": "/#produtos"
+    },
+    {
+      "source": "/produtos/coco-seco",
+      "destination": "/#produtos"
+    },
+    {
+      "source": "/produtos/coco-verde",
+      "destination": "/#produtos"
+    },
+    {
+      "source": "/contato",
+      "destination": "/#cotacao",
+      "note": "contato/formulário → cotação via WhatsApp"
+    },
+    {
+      "source": "/duvidas",
+      "destination": "/#faq",
+      "note": "página-mãe do FAQ (fora do sitemap)"
+    },
+    {
+      "source": "/formulario-enviado",
+      "destination": "/",
+      "note": "agradecimento pós-formulário; o envio agora é pelo WhatsApp"
+    }
+  ],
+  "unconfirmed": [
+    {
+      "source": "/pagina-inicial",
+      "destination": "/",
+      "note": "URI cadastrada no CMS; confirmar se responde 200"
+    },
+    {
+      "source": "/site-antigo/:path*",
+      "destination": "/",
+      "note": "app Zend 2013 ainda no servidor; confirmar se é público"
+    }
+  ],
+  "gone": [
+    {
+      "source": "/duvidas/a-concertina-e-legalizada-e-permitida-para-uso-em-residencias-e-empresas-",
+      "reason": "slug de outro cliente (concertina)"
+    },
+    {
+      "source": "/duvidas/a-concertina-requer-manutencao-regular-e-como-posso-garantir-sua-durabilidade-",
+      "reason": "slug de outro cliente (concertina)"
+    },
+    {
+      "source": "/duvidas/como-recorrer-ou-contestar-o-valor-do-iptu-",
+      "reason": "slug de outro cliente (IPTU)"
+    },
+    {
+      "source": "/depoimentos",
+      "reason": "listagem de depoimentos fictícios"
+    },
+    {
+      "source": "/depoimentos/cristine-bez",
+      "reason": "depoimento fictício / pessoa de outro projeto"
+    },
+    {
+      "source": "/depoimentos/distribuidor-frutas-br",
+      "reason": "depoimento fictício"
+    },
+    {
+      "source": "/depoimentos/supermercado-xyz",
+      "reason": "depoimento fictício"
+    },
+    {
+      "source": "/depoimentos/teste",
+      "reason": "registro de teste"
+    },
+    {
+      "source": "/enviar-email",
+      "reason": "endpoint do formulário antigo"
+    },
+    {
+      "source": "/file-upload/:type",
+      "reason": "upload público do Laravel (risco)"
+    },
+    {
+      "source": "/api/user",
+      "reason": "rota padrão do Laravel"
+    },
+    {
+      "source": "/info.php",
+      "reason": "phpinfo() exposto no legado"
+    },
+    {
+      "source": "/urllist.txt",
+      "reason": "sitemap em formato antigo"
+    },
+    {
+      "source": "/sitemap-image.xml",
+      "reason": "sitemap auxiliar sem uso"
+    },
+    {
+      "source": "/sitemap-video.xml",
+      "reason": "sitemap auxiliar sem uso"
+    },
+    {
+      "source": "/sitemap-news.xml",
+      "reason": "sitemap auxiliar sem uso"
+    },
+    {
+      "source": "/sitemap-code.xml",
+      "reason": "sitemap auxiliar sem uso"
+    },
+    {
+      "source": "/sitemap.rss",
+      "reason": "sitemap auxiliar sem uso"
+    }
+  ],
+  "undecided": [
+    {
+      "source": "/app",
+      "options": [
+        "410 no corte (painel do CMS sai do ar)"
+      ]
+    },
+    {
+      "source": "/app-raddar/:path*",
+      "options": [
+        "410 no corte (painel do CMS sai do ar)"
+      ]
+    },
+    {
+      "source": "/uploads/:file*",
+      "options": [
+        "410",
+        "manter só os caminhos das fotos reaproveitadas, se houver tráfego"
+      ]
+    }
+  ],
+  "keep": [
+    "/",
+    "/politica-de-privacidade",
+    "/sitemap.xml",
+    "/robots.txt",
+    "/termos-de-uso"
+  ]
+}

@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { site } from "@/data/site";
 
+// Gerado no build: o site é publicado como export estático (output: "export").
+export const dynamic = "force-static";
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: site.name,

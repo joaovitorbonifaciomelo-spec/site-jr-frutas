@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { quoteWhatsappLink, site } from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
@@ -41,14 +42,14 @@ export function Hero() {
         </div>
 
         {/* indicação de rolagem — só desktop/tablet, sem animação */}
-        <a
+        <Link
           href="/#autoridade"
           aria-label="Rolar para a próxima seção"
           className="absolute bottom-8 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[0.62rem] font-bold uppercase tracking-[0.2em] text-white/55 transition-colors hover:text-white sm:flex"
         >
           Role
           <span aria-hidden className="h-10 w-px bg-gradient-to-b from-white/70 to-white/0" />
-        </a>
+        </Link>
       </div>
     </section>
   );

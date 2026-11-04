@@ -4,5 +4,42 @@ out
 build
 *.tsbuildinfo
 next-env.d.ts
-.env*.local
+.env
+.env.*
+!.env.example
 .DS_Store
+Thumbs.db
+desktop.ini
+
+# caches e temporários
+.cache
+*.log
+*.tmp
+*.bak
+
+# masters e originais de vídeo (ficam fora do repositório; só os derivados de public/video entram)
+*.mov
+*.MOV
+desktop-hero.mp4
+mobile-hero.mp4
+final desktop.mp4
+mobile final.mp4
+
+# legado, banco e backups
+antigo-jr-frutas/
+site-antigo/
+httpdocs/
+*.sql
+*.sql.*
+*.dump
+*.zip
+*.gz
+*.7z
+*.rar
+
+# segredos
+*.pem
+*.key
+
+# auditoria visual do legado (mosaicos de revisão, só local)
+docs/legacy-media-review/

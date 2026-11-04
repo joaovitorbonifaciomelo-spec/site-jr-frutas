@@ -134,6 +134,10 @@ export function Footer() {
             <Link href="/politica-de-privacidade" className="whitespace-nowrap transition-colors hover:text-white">
               Política de Privacidade
             </Link>
+            <span className="mx-2 text-white/25">·</span>
+            <Link href="/termos-de-uso" className="whitespace-nowrap transition-colors hover:text-white">
+              Termos de Uso
+            </Link>
           </p>
           <DeveloperCredit />
         </div>

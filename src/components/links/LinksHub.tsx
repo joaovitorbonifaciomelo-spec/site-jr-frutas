@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from "react";
 import { LayoutGrid } from "lucide-react";
-import { site, units, unitWhatsappLink } from "@/data/site";
+import { site, team, units, unitWhatsappLink, type TeamContact } from "@/data/site";
 import { companies, companyHref } from "@/data/companies";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import { DeveloperCredit } from "@/components/ui/DeveloperCredit";
@@ -15,7 +15,22 @@ import { VideoBackground } from "./VideoBackground";
 import { copyText, downloadVCard, track, withUtm } from "./hub-utils";
 
 const waMessage = (city: string) => `Olá! Vim pelo site da JR Frutas e gostaria de falar com a unidade de ${city}.`;
+const AREA: Record<TeamContact["area"], [art: string, de: string, label: string]> = {
+  Comercial: ["o", "do", "comercial"],
+  Gerência: ["a", "da", "gerência"],
+  Financeiro: ["o", "do", "financeiro"],
+  Caixa: ["o", "do", "caixa"],
+};
+const teamMessage = (c: TeamContact, company: string) => {
+  const [art, de, label] = AREA[c.area];
+  return `Olá! Vim pelo site da JR Frutas e gostaria de falar com ${c.name ? `${c.name}, ${de} ${label}` : `${art} ${label}`} da ${company}.`;
+};
 const SHEET_STATE = "jr-links-sheet";
+
+// A query string não muda enquanto o hub está aberto: nada a assinar. No servidor é vazia.
+const noSubscribe = () => () => undefined;
+const readSearch = () => window.location.search;
+const emptySearch = () => "";
 
 type SheetId = "atendimento" | "localizacao" | "empresas" | null;
 
@@ -25,23 +40,21 @@ const glass =
 
 export function LinksHub() {
   const [sheet, setSheet] = useState<SheetId>(null);
-  const [debug, setDebug] = useState(false);
-  const [hrefs, setHrefs] = useState<{ site: string; produtos: string; empresas: Record<string, string> }>({
-    site: "/",
-    produtos: "/#produtos",
-    empresas: Object.fromEntries(companies.map((c) => [c.slug, companyHref(c)])),
-  });
+  const search = useSyncExternalStore(noSubscribe, readSearch, emptySearch);
+  const debug = new URLSearchParams(search).get("debug") === "1";
+  // UTMs preservadas para o site principal
+  const hrefs = useMemo(
+    () => ({
+      site: withUtm("/", search),
+      produtos: withUtm("/#produtos", search),
+      empresas: Object.fromEntries(companies.map((c) => [c.slug, withUtm(`${companyHref(c)}/`, search)])),
+    }),
+    [search],
+  );
   const { toast, show, hide } = useToast();
 
-  // abertura do hub + UTMs preservadas para o site principal
   useEffect(() => {
     track("hub_open");
-    setHrefs({
-      site: withUtm("/"),
-      produtos: withUtm("/#produtos"),
-      empresas: Object.fromEntries(companies.map((c) => [c.slug, withUtm(companyHref(c))])),
-    });
-    setDebug(new URLSearchParams(window.location.search).get("debug") === "1");
   }, []);
 
   // ---- bottom sheets ↔ histórico (botão voltar do Android fecha o sheet antes de sair) ----
@@ -116,7 +129,7 @@ export function LinksHub() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-display text-[1.08rem] font-extrabold leading-tight tracking-[-0.01em]">WhatsApp</span>
-              <span className="block text-[0.82rem] text-black/60">Escolha sua unidade</span>
+              <span className="block text-[0.82rem] text-black/60">Unidades e equipe</span>
             </span>
             <ArrowRight size={20} className="shrink-0 transition-transform duration-200 group-hover:translate-x-0.5 group-active:translate-x-1" />
           </button>
@@ -170,7 +183,8 @@ export function LinksHub() {
       </div>
 
       {/* Atendimento — "Com qual unidade você quer falar?" */}
-      <Sheet open={sheet === "atendimento"} onClose={closeSheet} title="WhatsApp" description="Com qual unidade você quer falar?">
+      <Sheet open={sheet === "atendimento"} onClose={closeSheet} title="WhatsApp" description="Com quem você quer falar?">
+        <p className="mb-2.5 text-[0.66rem] font-bold uppercase tracking-[0.18em] text-white/55">Unidades JR Frutas</p>
         <ul className="flex flex-col gap-3">
           {units.map((u) => {
             const wa = unitWhatsappLink(u, waMessage(u.city)); // null se o WhatsApp da unidade não estiver cadastrado
@@ -208,6 +222,50 @@ export function LinksHub() {
             );
           })}
         </ul>
+
+        {/* Equipe das empresas — comercial, gerência e financeiro (lista do cliente) */}
+        {team.map((g) => {
+          const company = companies.find((c) => c.slug === g.company);
+          if (!company) return null;
+          return (
+            <section key={g.company} aria-label={`Equipe ${company.name}`} className="mt-6">
+              <div className="mb-2.5 flex items-center">
+                <CompanyLogo company={company} tone="white" variant="wordmark" height={16} optical />
+              </div>
+              <ul className="divide-y divide-white/10 overflow-hidden rounded-[14px] border border-white/10 bg-white/[0.04]">
+                {g.contacts.map((c) => (
+                  <li key={c.e164} className="flex items-center gap-3 py-2.5 pr-2.5 pl-4">
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[0.95rem] font-extrabold leading-tight">
+                        {c.area}
+                        {c.name ? <span className="font-semibold text-white/70"> · {c.name}</span> : null}
+                      </span>
+                      <span className="mt-0.5 block text-[0.82rem] text-white/60">{c.display}</span>
+                    </span>
+                    <a
+                      href={unitWhatsappLink({ whatsapp: c.e164 }, teamMessage(c, company.name)) ?? undefined}
+                      target="_blank"
+                      rel="noopener"
+                      aria-label={`WhatsApp ${c.area}${c.name ? ` ${c.name}` : ""} — ${company.name}`}
+                      onClick={() => track("hub_whatsapp_equipe", { empresa: g.company, area: c.area })}
+                      className="grid size-11 shrink-0 place-items-center rounded-full bg-white text-black transition-colors hover:bg-neutral-200 active:bg-neutral-200"
+                    >
+                      <WhatsApp size={18} />
+                    </a>
+                    <a
+                      href={`tel:${c.e164}`}
+                      aria-label={`Ligar ${c.area}${c.name ? ` ${c.name}` : ""} — ${company.name}`}
+                      onClick={() => track("hub_ligar_equipe", { empresa: g.company, area: c.area })}
+                      className="grid size-11 shrink-0 place-items-center rounded-full border border-white/25 transition-colors hover:bg-white hover:text-black active:bg-white active:text-black"
+                    >
+                      <Phone size={17} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })}
       </Sheet>
 
       {/* Localização — "Onde ficam as unidades?" */}

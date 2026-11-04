@@ -1,6 +1,6 @@
 import Image from "next/image";
 import fachada from "@/assets/images/arquivo-fachada.webp";
-import { aboutPillars, history, site } from "@/data/site";
+import { aboutPillars, history, historyPhotos, site } from "@/data/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { Check } from "@/components/ui/Icons";
 import { Reveal } from "@/components/ui/Reveal";
@@ -8,7 +8,8 @@ import { Reveal } from "@/components/ui/Reveal";
 /**
  * História / Quem somos — 1994 → hoje, apenas marcos confirmados
  * (2009/Melancia e Cia e Uruana-GO ficam em HISTORY_TO_VALIDATE, fora do ar).
- * Foto de arquivo: fachada da JR Frutas Atacadista recuperada do site legado.
+ * Fotos de arquivo recuperadas do site legado: fachada da JR Frutas Atacadista
+ * e o box no CEASA Goiânia em 2010 (registro de 2010, não do início da empresa).
  */
 export function About() {
   return (
@@ -16,7 +17,7 @@ export function About() {
       {/* filete no topo: separa da seção Estrutura (também branca) que vem logo acima */}
       <div className="container-site border-t border-black/10 py-14 sm:py-20 lg:py-24">
         <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
-          <div>
+          <div className="lg:sticky lg:top-28 lg:self-start">
             <Reveal>
               <p className="eyebrow text-black/55">Quem somos</p>
               <h2 id="quem-somos-titulo" className="h-section mt-3 max-w-[18ch]">
@@ -66,6 +67,7 @@ export function About() {
                       Mais de 30 anos de mercado
                     </p>
                   ) : null}
+                  {h.year === "2010" ? <ArchiveBox /> : null}
                 </li>
               ))}
             </Reveal>
@@ -88,5 +90,39 @@ export function About() {
         </div>
       </div>
     </section>
+  );
+}
+
+/** Registro de 2010: box antes e depois da reforma + o letreiro como detalhe. */
+function ArchiveBox() {
+  const { box, reformed, sign } = historyPhotos;
+  return (
+    <div className="mt-5">
+      <div className="grid gap-4 sm:grid-cols-2 sm:gap-3">
+        {[box, reformed].map((photo) => (
+          <figure key={photo.src}>
+            <div className="relative aspect-[3/2] overflow-hidden rounded-[var(--radius-card)] bg-neutral-200 sm:aspect-[4/3]">
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                loading="lazy"
+                sizes="(min-width: 1024px) 250px, (min-width: 640px) 45vw, 90vw"
+                className="object-cover"
+              />
+            </div>
+            <figcaption className="caption mt-2 text-black/60">{photo.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <figure className="mt-4 flex items-center gap-3">
+        <div className="relative aspect-[900/491] w-[148px] shrink-0 overflow-hidden rounded-[var(--radius-card)] bg-neutral-200">
+          <Image src={sign.src} alt={sign.alt} fill loading="lazy" sizes="148px" className="object-cover" />
+        </div>
+        <figcaption className="caption text-black/60">
+          {sign.caption}
+        </figcaption>
+      </figure>
+    </div>
   );
 }

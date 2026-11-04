@@ -15,7 +15,7 @@ npm run dev          # http://localhost:3000
 npm run lint
 npm run typecheck
 npm run build
-npm run start
+npm run preview      # serve só out/ (export estático), em http://localhost:4173
 ```
 
 ## Estrutura

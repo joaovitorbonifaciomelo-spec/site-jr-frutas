@@ -1,0 +1,107 @@
+# JR Frutas: site estático em httpdocs/ (Apache/Plesk)
+# STATUS: PARA REVISÃO. NÃO PUBLICADO. Ainda não foi testado em Apache real.
+# Origem do mapa: docs/redirects/legacy-redirects.json
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+DirectorySlash On
+
+# Páginas de erro do próprio site
+ErrorDocument 404 /404.html
+ErrorDocument 410 /404.html
+
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/webp .webp
+  AddType font/woff2 .woff2
+  AddType video/mp4 .mp4
+  AddCharset utf-8 .html .css .js .json .txt .xml .webmanifest
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # ---------------------------------------------------------------------------
+  # HTTPS E DOMÍNIO: DECIDIR NO CORTE. Domínio previsto: https://www.jrfrutas.com.br.
+  # As regras comentadas abaixo foram escritas para o domínio sem www: reescrever antes de usar.
+  # Preferir a opção de redirecionamento HTTPS do próprio Plesk. Se usar as regras
+  # abaixo, testar antes: atrás do proxy do Plesk elas podem causar loop.
+  # ---------------------------------------------------------------------------
+  # RewriteCond %{HTTPS} !=on
+  # RewriteRule ^ https://jrfrutas.com.br%{REQUEST_URI} [R=301,L,NE]
+  # RewriteCond %{HTTP_HOST} ^www\.jrfrutas\.com\.br$ [NC]
+  # RewriteRule ^ https://jrfrutas.com.br%{REQUEST_URI} [R=301,L,NE]
+
+  # ---------------------------------------------------------------------------
+  # PROTEÇÃO: 404 para arquivos ocultos e restos do Laravel/CMS
+  # Segunda barreira. O correto é NÃO deixar nada disso em httpdocs/.
+  # ---------------------------------------------------------------------------
+  # /info.php expunha phpinfo() no site antigo: 410, antes do bloqueio geral de .php
+  RewriteRule ^info\.php$ - [G,L]
+  RewriteRule (^|/)\.(?!well-known/) - [R=404,L]
+  RewriteRule ^(app|app-raddar|bootstrap|config|database|public|resources|routes|site|site-antigo|sql|storage|tests|vendor)(/|$) - [R=404,L]
+  RewriteRule \.(sql|sql\.zip|sql\.gz|env|log|bak|php|lock)$ - [R=404,L]
+  RewriteRule (^|/)(composer\.json|package\.json|package-lock\.json|artisan|server\.php|webpack\.mix\.js)$ - [R=404,L]
+
+  # Pastas e cópias sem uso público no site novo
+  RewriteRule ^empresas/?$ - [R=404,L]
+  RewriteRule ^(404|_not-found)(/|$) - [R=404,L]
+
+  # ---------------------------------------------------------------------------
+  # 410: remoção definitiva (conteúdo contaminado, fictício ou endpoint antigo)
+  # ---------------------------------------------------------------------------
+  RewriteRule ^duvidas/a-concertina-e-legalizada-e-permitida-para-uso-em-residencias-e-empresas-/?$ - [G,L]
+  RewriteRule ^duvidas/a-concertina-requer-manutencao-regular-e-como-posso-garantir-sua-durabilidade-/?$ - [G,L]
+  RewriteRule ^duvidas/como-recorrer-ou-contestar-o-valor-do-iptu-/?$ - [G,L]
+  RewriteRule ^depoimentos(/(cristine-bez|distribuidor-frutas-br|supermercado-xyz|teste))?/?$ - [G,L]
+  RewriteRule ^enviar-email/?$ - [G,L]
+  RewriteRule ^file-upload/[^/]+/?$ - [G,L]
+  RewriteRule ^api/user/?$ - [G,L]
+  RewriteRule ^urllist\.txt$ - [G,L]
+  RewriteRule ^sitemap-(image|video|news|code)\.xml$ - [G,L]
+  RewriteRule ^sitemap\.rss$ - [G,L]
+
+  # ---------------------------------------------------------------------------
+  # 301: URLs antigas válidas. NE preserva o # da âncora.
+  # ---------------------------------------------------------------------------
+  RewriteRule ^jr-frutas/?$ /#quem-somos [R=301,L,NE]
+  RewriteRule ^produtos/?$ /#produtos [R=301,L,NE]
+  RewriteRule ^produtos/(abacaxi|melancia|coco-seco|coco-verde)/?$ /#produtos [R=301,L,NE]
+  RewriteRule ^contato/?$ /#cotacao [R=301,L,NE]
+  RewriteRule ^duvidas/?$ /#faq [R=301,L,NE]
+  RewriteRule ^formulario-enviado/?$ / [R=301,L]
+
+  # ---------------------------------------------------------------------------
+  # PENDENTES DE DECISÃO: enquanto comentadas, estas URLs respondem 404
+  # ---------------------------------------------------------------------------
+  # /pagina-inicial: confirmar se responde 200 no site antigo antes de ativar:
+  # RewriteRule ^pagina-inicial/?$ / [R=301,L]
+  # /uploads/*: 410, ou manter só os caminhos que ainda tenham tráfego:
+  # RewriteRule ^uploads/ - [G,L]
+</IfModule>
+
+# Compressão de texto (vídeo e imagem já são comprimidos)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript text/plain application/json application/xml application/manifest+json image/svg+xml
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # HTML e dados de navegação: sempre revalidar, para a publicação aparecer logo
+  <FilesMatch "\.(html|txt|xml|webmanifest)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+
+  # Mídia sem hash no nome: 7 dias, porque um arquivo pode ser trocado com o mesmo nome
+  <FilesMatch "\.(mp4|webp|jpe?g|png|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+
+  # _next/static tem hash no nome: 1 ano, imutável (precisa vir por último)
+  SetEnvIf Request_URI "^/_next/static/" NEXT_STATIC
+  Header set Cache-Control "public, max-age=31536000, immutable" env=NEXT_STATIC
+</IfModule>

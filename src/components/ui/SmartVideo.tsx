@@ -24,6 +24,8 @@ type Props = {
   sizes?: string;
 };
 
+const noIntersectionObserver = () => typeof window !== "undefined" && typeof IntersectionObserver === "undefined";
+
 /** No máximo UM vídeo deste tipo tocando por vez em toda a página. */
 let current: HTMLVideoElement | null = null;
 
@@ -31,10 +33,10 @@ let current: HTMLVideoElement | null = null;
  * Vídeo decorativo poster-first e adaptativo.
  * - Poster (<picture> com srcset) renderizado no servidor: nunca há tela preta.
  * - O <video> só é montado quando o quadro chega perto da viewport E está ativo;
- *   a versão é escolhida pelo tamanho físico do quadro (DPR ≤ 2) e pelo
+ *   a versão é escolhida pelo tamanho físico do quadro e pelo
  *   orçamento do dispositivo/rede (lib/video.ts → mediaBudget):
  *   reduced-motion → poster sem autoplay · Save-Data → poster ·
- *   2G/3G/downlink baixo/pouca memória → versão leve.
+ *   2G/3G/downlink baixo/pouca memória → versão 540; condição normal → 720.
  * - Pausa fora da viewport; só um vídeo toca por vez. Sem áudio, playsInline.
  */
 export function SmartVideo({
@@ -51,19 +53,16 @@ export function SmartVideo({
   const ref = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
-  const [near, setNear] = useState(false);
-  const [visible, setVisible] = useState(false);
+  // sem IntersectionObserver (navegador muito antigo) o vídeo já começa liberado
+  const [near, setNear] = useState(noIntersectionObserver);
+  const [visible, setVisible] = useState(noIntersectionObserver);
   const [ready, setReady] = useState(false);
 
   // posição do quadro: "perto" (lazy) e "visível" (play/pause)
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    if (typeof IntersectionObserver === "undefined") {
-      setNear(true);
-      setVisible(true);
-      return;
-    }
+    if (noIntersectionObserver()) return;
     const lazy = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
@@ -121,7 +120,6 @@ export function SmartVideo({
     <div ref={box} className={`overflow-hidden ${className}`} aria-hidden>
       <picture>
         {wide ? <source media="(min-width: 768px)" srcSet={posterSrcSet(wide)} sizes={sizes} /> : null}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={fallback.src}
           srcSet={posterSrcSet(portrait)}

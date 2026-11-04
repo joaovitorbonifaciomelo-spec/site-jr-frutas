@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { mediaBudget, pickRendition, portraitSet, posterSrcSet, type VideoSet } from "@/lib/video";
 
-/** Loop do hub — mesmo corte de antes, regenerado dos ORIGINAIS de câmera (720/1080). */
+/** Loop do hub — mesmo corte de antes, regenerado dos ORIGINAIS de câmera (540/720/1080). */
 const LOOP = portraitSet("/video/links-loop", "/video/links-poster");
 /** No celular o vídeo fica sob overlay + glass: 720 basta e economiza dados (bio do Instagram). */
 const LOOP_MOBILE: VideoSet = { ...LOOP, renditions: LOOP.renditions.filter((r) => r.width <= 720) };
@@ -19,7 +19,7 @@ type Props = {
  * Ordem de carregamento: fundo preto (CSS) → interface → poster (WebP, srcset
  * 720/1080, <img> nativo com fetchpriority high) → vídeo (só após hidratação).
  * Versão escolhida por lib/video.ts: reduced-motion/Save-Data → só poster;
- * 2G/3G/pouca memória → 720; demais → pelo tamanho físico da tela (no celular, até 720).
+ * 2G/3G/pouca memória → 540; demais → 720, ou pelo tamanho físico da tela (no celular, até 720).
  * Se falhar (onError), o poster assume automaticamente.
  * Overlay leve + gradientes localizados (topo/base) — o vídeo continua visível.
  *

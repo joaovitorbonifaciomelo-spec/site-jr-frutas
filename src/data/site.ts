@@ -325,11 +325,38 @@ export const history = [
     text: "A JR Frutas inicia as atividades no atacado de frutas.",
   },
   {
+    year: "2010",
+    title: "O box no CEASA Goiânia",
+    text: "Um registro do nosso arquivo: o box da então Jr. Comercial de Frutas, antes e depois da reforma.",
+  },
+  {
     year: "Hoje",
     title: "Duas unidades, quatro operações",
     text: "Unidades em Goiânia e Brasília, mais de 1.500 clientes atendidos e as operações JR COCO, Bela Fruta, FRUTAFORTE e Abacaxi.com.",
   },
 ];
+
+/**
+ * Fotos de arquivo do marco de 2010 (EXIF: fev. a abr./2010, recuperadas do site legado).
+ * NUNCA apresentar como imagens de 1994: não há foto daquele período.
+ */
+export const historyPhotos = {
+  box: {
+    src: "/images/history/ceasa-goiania-2010-box.webp",
+    alt: "Fachada do box da Jr. Comercial de Frutas no CEASA Goiânia, com faixa sobre placas antigas, portas de enrolar e um carro da empresa adesivado com melancias",
+    caption: "CEASA Goiânia · 2010",
+  },
+  reformed: {
+    src: "/images/history/ceasa-goiania-2010-box-reformado.webp",
+    alt: "O box reformado, com paredes brancas, azulejos, carrinhos verdes, melancias empilhadas e um funcionário de camisa vermelha",
+    caption: "O box reformado · 2010",
+  },
+  sign: {
+    src: "/images/history/ceasa-goiania-2010-letreiro.webp",
+    alt: "Faixa pintada à mão com o nome Jr. Comercial de Frutas e o telefone 3522-9333",
+    caption: "O letreiro da época · 2010",
+  },
+} as const;
 
 /** Marcos encontrados no legado (site de 2013) que AINDA NÃO podem ir ao ar. */
 export const HISTORY_TO_VALIDATE = [
@@ -374,6 +401,46 @@ export const faq = [
     a: "São operações da JR Frutas, cada uma com foco próprio: a JR COCO no coco, a Bela Fruta no atacado diário do CEASA-GO e a FRUTAFORTE no trabalho em parceria com produtores, acompanhando a fruta desde a lavoura. Cada página tem os contatos da operação.",
   },
 ] as const;
+
+// ---------------------------------------------------------------------------
+// EQUIPE DAS EMPRESAS (/links → sheet do WhatsApp)
+// Lista enviada pelo João (03/11/2026). A JR Frutas atende só pelos números
+// das unidades (acima) — não há contatos individuais da JR Frutas.
+// Nomes escritos como recebidos ("Helana" — confirmar grafia com o cliente).
+// ---------------------------------------------------------------------------
+export type TeamContact = {
+  area: "Comercial" | "Gerência" | "Financeiro" | "Caixa";
+  name: string | null;
+  /** celular em formato humano */
+  display: string;
+  /** E.164 — WhatsApp e tel: */
+  e164: string;
+};
+export type TeamGroup = { company: "bela-fruta" | "frutaforte" | "jr-coco"; contacts: TeamContact[] };
+
+export const team: TeamGroup[] = [
+  {
+    company: "bela-fruta",
+    contacts: [
+      { area: "Comercial", name: "Larissa", display: "(62) 99404-1888", e164: "+5562994041888" },
+      { area: "Comercial", name: "Helana", display: "(62) 99335-7892", e164: "+5562993357892" },
+      { area: "Gerência", name: "Antonio", display: "(61) 98187-4350", e164: "+5561981874350" },
+      { area: "Financeiro", name: null, display: "(62) 99668-6474", e164: "+5562996686474" },
+    ],
+  },
+  {
+    company: "frutaforte",
+    contacts: [
+      { area: "Comercial", name: "Lorrainy", display: "(62) 99858-3078", e164: "+5562998583078" },
+      { area: "Financeiro", name: null, display: "(62) 99646-5946", e164: "+5562996465946" },
+      { area: "Caixa", name: null, display: "(62) 96281-9968", e164: "+5562962819968" },
+    ],
+  },
+  {
+    company: "jr-coco",
+    contacts: [{ area: "Comercial", name: null, display: "(62) 99995-0999", e164: "+5562999950999" }],
+  },
+];
 
 // ---------------------------------------------------------------------------
 // WHATSAPP

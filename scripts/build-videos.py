@@ -16,14 +16,22 @@ Para cada receita:
 
 Versões horizontais (1280×720 / 1920×1080) só existem quando há ORIGINAL
 horizontal — hoje não há material horizontal utilizável para os heros (ver
-docs/visual-review/video-inventory.csv). Os heros horizontais atuais
-(hero-wide.mp4, empresas/jr-coco-wide.mp4) são PLACEHOLDERS pendentes de nova
-gravação e não são gerados aqui.
+docs/visual-review/video-inventory.csv). O hero horizontal da JR COCO
+(empresas/jr-coco-wide.mp4) é PLACEHOLDER pendente de nova gravação e não é
+gerado aqui.
+
+MASTERS FINAIS EDITADOS (seção MASTERS): vídeos já montados/editados fora do
+pipeline (ex.: hero JR Frutas desktop 1920×1080 e mobile 1080×1920). Não há
+corte, troca de ordem nem tone-map — só a escada de versões a partir do master
+(30 fps, H.264 High, yuv420p, faststart, sem áudio) e posters de um quadro
+escolhido (poster_at). Nunca há upscale: cada degrau ≤ resolução do master.
 
 Uso:
     python scripts/build-videos.py              # todas as receitas
     python scripts/build-videos.py jr-coco      # só as indicadas
+    python scripts/build-videos.py hero-jr-desktop hero-jr-mobile  # masters finais do hero
     python scripts/build-videos.py --check      # só confere as fontes
+    python scripts/build-videos.py --only 540   # só o degrau indicado, sem tocar nos demais
 """
 
 from __future__ import annotations
@@ -38,11 +46,12 @@ from pathlib import Path
 from typing import NamedTuple
 
 SITE = Path(__file__).resolve().parents[1]  # .../2 - Site/JR FRUTAS
-GRUPO = Path(os.environ.get("GRUPO_JR_ROOT") or "G:/Meu Drive/Bonifácio/Clientes/Branding/1 - Grupo JR")  # originais (5 - Materiais)
-MAT = GRUPO / "5 - Materiais"
+GRUPO = Path(os.environ.get("GRUPO_JR_ROOT") or "G:/Meu Drive/1 · BONIFÁCIO/1 · Clientes/01 · Grupo JR")  # originais (6 · Materiais)
+MAT = GRUPO / "6 · Materiais"
 OUT = SITE / "public" / "video"
 
 XFADE = 0.6  # s de crossfade entre clipes
+NO_POSTER = {"540"}  # o degrau leve reaproveita os posters 720/1080
 
 # HLG (BT.2020) → SDR BT.709 com tone-map hable (mesma cadeia já validada no projeto)
 TONEMAP = (
@@ -55,11 +64,13 @@ BT709 = ["-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt7
 LADDER = [
     ("1080", 1080, 1920, 23, "4500k", "9000k", "4.1"),
     ("720", 720, 1280, 25, "1800k", "3600k", "4.0"),
+    ("540", 540, 960, 27, "900k", "1800k", "3.1"),
 ]
 # fundos longos (14–18 s) com overlay escuro/glass por cima: mesma resolução, bitrate menor
 BACKGROUND_LADDER = [
     ("1080", 1080, 1920, 25, "3200k", "6400k", "4.1"),
     ("720", 720, 1280, 27, "1300k", "2600k", "4.0"),
+    ("540", 540, 960, 28, "700k", "1400k", "3.1"),
 ]
 
 
@@ -120,14 +131,6 @@ RECIPES: dict[str, Recipe] = {
         C(FF_ / "IMG_7933.MOV", 5.0, 3.5),
         C(FF_ / "IMG_7969.MOV", 2.0, 4.0),
     ]),
-    # Hero principal (mobile) — MESMO vídeo de antes, só reencodado do original.
-    # PENDENTE DE NOVA GRAVAÇÃO/DIREÇÃO (não escolher outro aqui).
-    "hero-mobile": Recipe("hero-mobile", "hero-mobile-poster", [
-        C(JR_COCO / "IMG_7861.MOV", 9.0, 4.0),
-        C(JR_COCO / "IMG_7876.MOV", 8.0, 4.0),
-        C(BELA / "IMG_7907.MOV", 2.0, 4.0),
-        C(JR_COCO / "IMG_7865.MOV", 9.0, 4.0),
-    ], BACKGROUND_LADDER),
     # Fundo do hub /links — mesmo corte de antes, reencodado do original
     "links": Recipe("links-loop", "links-poster", [
         C(BELA / "IMG_7907.MOV", 2.0, 4.0),
@@ -137,6 +140,76 @@ RECIPES: dict[str, Recipe] = {
         C(JR_COCO / "IMG_7861.MOV", 9.0, 4.0),
     ], BACKGROUND_LADDER),
 }
+
+
+# ---------------------------------------------------------------------------
+# MASTERS FINAIS — vídeos já editados; o pipeline só gera versões e posters
+# ---------------------------------------------------------------------------
+class Master(NamedTuple):
+    name: str  # base do arquivo publicado
+    poster: str  # base do poster
+    source: Path  # master final (não é alterado)
+    ladder: list  # (sufixo, largura, altura, crf, maxrate, bufsize, level)
+    poster_at: float  # s do quadro do poster (nítido, representativo, funciona sob o texto) — já na linha do tempo cortada
+    skip_frames: int = 0  # limpeza técnica: quadros iniciais descartados (ex.: pretos de exportação) — não é edição
+
+
+HERO_MASTERS = Path(os.environ.get("HERO_MASTERS_DIR") or "C:/Projetos/sistema-jr")
+
+# hero em tela cheia sob overlay escuro (mesmo critério dos fundos longos): alta 1080p / leve 720p
+HERO_WIDE_LADDER = [
+    ("1080", 1920, 1080, 25, "3200k", "6400k", "4.1"),
+    ("720", 1280, 720, 27, "1300k", "2600k", "3.1"),
+    ("540", 960, 540, 28, "700k", "1400k", "3.1"),
+]
+HERO_PORTRAIT_LADDER = BACKGROUND_LADDER
+POSTER_Q_HERO = 58  # quadro muito texturizado (abacaxis): q68 dava ~300 KB no LCP; sob o overlay q58 é indistinguível
+
+MASTERS: dict[str, Master] = {
+    # Hero JR Frutas — edição final (nov/2026). Poster: abacaxis nas caixas JR Frutas.
+    # O master desktop começa com 4 quadros pretos (4/60 s) → descartados só nos derivados (evita piscada preta no loop).
+    "hero-jr-desktop": Master("hero-jr-desktop", "hero-jr-desktop-poster", HERO_MASTERS / "desktop-hero.mp4", HERO_WIDE_LADDER, 7.13, skip_frames=4),
+    "hero-jr-mobile": Master("hero-jr-mobile", "hero-jr-mobile-poster", HERO_MASTERS / "mobile-hero.mp4", HERO_PORTRAIT_LADDER, 3.5),
+}
+
+
+def master_size(path: Path) -> tuple[int, int]:
+    err = subprocess.run([FF, "-hide_banner", "-i", str(path)], capture_output=True, text=True, errors="replace").stderr
+    m = re.search(r"Video:.*?(\d{3,5})x(\d{3,5})", err)
+    if not m:
+        raise RuntimeError(f"sem resolução: {path}")
+    return int(m.group(1)), int(m.group(2))
+
+
+def check_master(m: Master) -> None:
+    if not m.source.exists():
+        raise FileNotFoundError(m.source)
+    sw, sh = master_size(m.source)
+    for suffix, w, h, *_ in m.ladder:
+        if w > sw or h > sh:
+            raise ValueError(f"{m.source.name} é {sw}×{sh}: degrau {w}×{h} seria upscale")
+    if m.poster_at >= duration_of(m.source):
+        raise ValueError(f"{m.source.name}: poster_at fora do vídeo")
+
+
+def build_master(m: Master, only: str | None = None) -> None:
+    check_master(m)
+    for suffix, w, h, crf, maxrate, bufsize, level in m.ladder:
+        if only and suffix != only:
+            continue
+        dest = OUT / f"{m.name}-{suffix}.mp4"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        trim = f"trim=start_frame={m.skip_frames},setpts=PTS-STARTPTS," if m.skip_frames else ""
+        run(["-i", str(m.source), "-vf", f"{trim}fps=30,scale={w}:{h}:flags=lanczos,setsar=1,format=yuv420p", "-an",
+             "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level", level,
+             "-crf", str(crf), "-maxrate", maxrate, "-bufsize", bufsize, "-g", "60", "-keyint_min", "30",
+             "-pix_fmt", "yuv420p", *BT709, "-movflags", "+faststart", str(dest)])
+        if suffix in NO_POSTER:
+            print(f"{dest.relative_to(OUT)!s:34s} {dest.stat().st_size / 1024:7.0f} KB")
+            continue
+        poster = OUT / f"{m.poster}-{suffix}.webp"
+        run(["-ss", f"{m.poster_at:.2f}", "-i", str(dest), "-frames:v", "1", "-c:v", "libwebp", "-quality", str(POSTER_Q_HERO), str(poster)])
+        print(f"{dest.relative_to(OUT)!s:34s} {dest.stat().st_size / 1024:7.0f} KB   poster {poster.stat().st_size / 1024:4.0f} KB")
 
 
 def duration_of(path: Path) -> float:
@@ -161,7 +234,7 @@ def run(args: list[str]) -> None:
     subprocess.run([FF, "-hide_banner", "-loglevel", "error", "-y", *args], check=True)
 
 
-def build(key: str, recipe: Recipe, tmp: Path) -> None:
+def build(key: str, recipe: Recipe, tmp: Path, only: str | None = None) -> None:
     check(recipe)
     inputs: list[str] = []
     fc: list[str] = []
@@ -182,6 +255,8 @@ def build(key: str, recipe: Recipe, tmp: Path) -> None:
          "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", *BT709, str(master)])
 
     for suffix, w, h, crf, maxrate, bufsize, level in recipe.ladder or LADDER:
+        if only and suffix != only:
+            continue
         dest = OUT / f"{recipe.name}-{suffix}.mp4"
         dest.parent.mkdir(parents=True, exist_ok=True)
         # -display_rotation 0: os quadros do master JÁ estão em pé, mas o MP4 herda a matriz de rotação
@@ -190,6 +265,9 @@ def build(key: str, recipe: Recipe, tmp: Path) -> None:
              "-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level", level,
              "-crf", str(crf), "-maxrate", maxrate, "-bufsize", bufsize, "-g", "60", "-keyint_min", "30",
              "-pix_fmt", "yuv420p", *BT709, "-movflags", "+faststart", str(dest)])
+        if suffix in NO_POSTER:
+            print(f"{dest.relative_to(OUT)!s:34s} {dest.stat().st_size / 1024:7.0f} KB")
+            continue
         poster = OUT / f"{recipe.poster}-{suffix}.webp"
         run(["-i", str(dest), "-frames:v", "1", "-c:v", "libwebp", "-quality", "68", str(poster)])
         print(f"{dest.relative_to(OUT)!s:34s} {dest.stat().st_size / 1024:7.0f} KB   poster {poster.stat().st_size / 1024:4.0f} KB")
@@ -197,17 +275,25 @@ def build(key: str, recipe: Recipe, tmp: Path) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("which", nargs="*", help="receitas (padrão: todas): " + ", ".join(RECIPES))
+    ap.add_argument("which", nargs="*", help="receitas/masters (padrão: todos): " + ", ".join([*RECIPES, *MASTERS]))
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--only", help="gera só este degrau (ex.: 540), sem tocar nos demais")
     a = ap.parse_args()
-    keys = a.which or list(RECIPES)
+    keys = a.which or [*RECIPES, *MASTERS]
     with tempfile.TemporaryDirectory() as t:
         for k in keys:
+            if k in MASTERS:
+                if a.check:
+                    check_master(MASTERS[k])
+                    print(f"{k}: master OK")
+                else:
+                    build_master(MASTERS[k], a.only)
+                continue
             if a.check:
                 check(RECIPES[k])
                 print(f"{k}: fontes OK")
             else:
-                build(k, RECIPES[k], Path(t))
+                build(k, RECIPES[k], Path(t), a.only)
 
 
 if __name__ == "__main__":

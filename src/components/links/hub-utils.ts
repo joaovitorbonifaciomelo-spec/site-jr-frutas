@@ -14,6 +14,8 @@ export type HubEvent =
   | "hub_ligar_brasilia"
   | "hub_whatsapp_goiania"
   | "hub_whatsapp_brasilia"
+  | "hub_whatsapp_equipe"
+  | "hub_ligar_equipe"
   | "hub_produtos"
   | "hub_localizacao"
   | "hub_site"
@@ -38,9 +40,8 @@ export function track(event: HubEvent, params: Record<string, string> = {}) {
 }
 
 /** Preserva UTMs da URL atual ao navegar para o site principal. */
-export function withUtm(href: string): string {
-  if (typeof window === "undefined") return href;
-  const current = new URLSearchParams(window.location.search);
+export function withUtm(href: string, search: string): string {
+  const current = new URLSearchParams(search);
   const utm = [...current.entries()].filter(([k]) => k.startsWith("utm_"));
   if (utm.length === 0) return href;
   const [pathAndQuery, hash] = href.split("#");

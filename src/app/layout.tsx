@@ -8,7 +8,7 @@ import "./globals.css";
 
 /**
  * Tipografia
- * - DISPLAY (identidade): Marine Rounded, self-hosted em /public/fonts — WOFF2 gerado dos OTF oficiais com
+ * - DISPLAY (identidade): Marine Rounded, em src/assets/fonts (fora de public/) — WOFF2 gerado dos OTF oficiais com
  *   todos os glifos/features e SEM hinting: o hinting CFF fazia o pingo do "i" sumir em
  *   certos tamanhos em telas 1× ("Quals", "dlsponível"); sem ele, todos os tamanhos ficam corretos. Via
  *   next/font/local — só os pesos usados (400 Regular, 700 Bold, 900 Black).
@@ -17,9 +17,9 @@ import "./globals.css";
  */
 const marine = localFont({
   src: [
-    { path: "../../public/fonts/MarineRounded-Regular.woff2", weight: "400", style: "normal" },
-    { path: "../../public/fonts/MarineRounded-Bold.woff2", weight: "700", style: "normal" },
-    { path: "../../public/fonts/MarineRounded-Black.woff2", weight: "900", style: "normal" },
+    { path: "../assets/fonts/MarineRounded-Regular.woff2", weight: "400", style: "normal" },
+    { path: "../assets/fonts/MarineRounded-Bold.woff2", weight: "700", style: "normal" },
+    { path: "../assets/fonts/MarineRounded-Black.woff2", weight: "900", style: "normal" },
   ],
   variable: "--font-marine",
   display: "swap",

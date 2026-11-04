@@ -1,0 +1,5 @@
+User-Agent: *
+Allow: /
+
+Host: https://www.jrfrutas.com.br
+Sitemap: https://www.jrfrutas.com.br/sitemap.xml

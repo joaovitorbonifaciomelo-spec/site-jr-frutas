@@ -55,7 +55,16 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   // Indexação só com o domínio final configurado — evita indexar preview/localhost com canonical errado.
   robots: site.urlConfigured ? { index: true, follow: true } : { index: false, follow: false },
-  icons: { icon: [{ url: "/icon.png", type: "image/png" }], apple: "/brand/icon-192.png" },
+  // Aba: símbolo sem fundo, preto em tema claro e branco em tema escuro. Tela inicial: fundo preto.
+  icons: {
+    icon: [
+      { url: "/favicon-branco-32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-branco-16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/favicon-preto-32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/favicon-preto-16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: light)" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {

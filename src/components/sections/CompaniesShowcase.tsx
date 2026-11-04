@@ -15,8 +15,9 @@ const chipsOf = (c: Company) => [...c.products.map((p) => p.name), ...(c.product
  *   ocupa 100svh de rolagem. Ao trocar de capítulo, a skin do palco muda
  *   (preto → branco → papel → preto), texto e mídia fazem crossfade e só o
  *   vídeo do capítulo ativo toca. Sem scroll-jacking: a rolagem é nativa.
- * - MOBILE/TABLET (<1024px): cards empilhados (sticky só em telas altas),
- *   cada um com a skin da operação; o vídeo toca só no card do topo.
+ * - MOBILE/TABLET (<1024px): cards empilhados, cada um com a skin da operação;
+ *   o card mais alto que a tela sobe até mostrar o próprio fim antes de grudar.
+ *   O vídeo toca só no card do topo.
  * - prefers-reduced-motion: sem transições e sem vídeo (posters).
  */
 export function CompaniesShowcase() {
@@ -255,6 +256,16 @@ function Cards() {
     };
   }, []);
 
+  // altura de cada card, usada no ponto de parada do sticky
+  useEffect(() => {
+    if (typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver((entries) => {
+      entries.forEach(({ target }) => (target as HTMLElement).style.setProperty("--card-h", `${(target as HTMLElement).offsetHeight}px`));
+    });
+    items.current.forEach((li) => li && ro.observe(li));
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <ol ref={list} className="container-site flex flex-col gap-4 pb-14 sm:gap-5 sm:pb-20 lg:hidden">
       {companies.map((c, i) => (
@@ -264,8 +275,8 @@ function Cards() {
             items.current[i] = el;
           }}
           data-skin={c.skin}
-          style={{ top: `calc(var(--header-h) + 12px + ${i * 10}px)` }}
-          className="overflow-hidden rounded-[24px] border border-sk-line bg-sk-bg text-sk-fg shadow-[0_-18px_40px_-24px_rgba(0,0,0,0.9)] [@media(min-height:760px)]:sticky"
+          style={{ top: `min(calc(var(--header-h) + 12px + ${i * 10}px), calc(100svh - var(--card-h, 0px) - 12px))` }}
+          className="overflow-hidden rounded-[24px] border border-sk-line bg-sk-bg text-sk-fg shadow-[0_-18px_40px_-24px_rgba(0,0,0,0.9)] sticky"
         >
           <article className="grid md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
             <div className="relative aspect-[4/3] bg-black md:aspect-auto md:min-h-[400px]">

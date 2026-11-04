@@ -44,7 +44,7 @@ export const site = {
   legalName: "JR. Comercial de Frutas",
   foundingYear: FOUNDING_YEAR,
   /** headline do hero (aprovada) */
-  tagline: "Qualidade que começa no campo. Confiança que chega até o seu negócio.",
+  tagline: "Cultivando Qualidade",
   /** assinatura da marca */
   signature: "Cultivando qualidade.",
   description:

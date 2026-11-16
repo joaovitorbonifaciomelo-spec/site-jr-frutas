@@ -23,7 +23,7 @@ export function Authority() {
               {since.detail}.
             </p>
             <p className="mt-3 max-w-[46ch] text-[0.98rem] leading-relaxed text-black/62">
-              Três décadas no atacado de frutas, abastecendo mercados, feirantes e restaurantes com regularidade.
+              Duas décadas no atacado de frutas, abastecendo mercados, feirantes e restaurantes com regularidade.
             </p>
           </Reveal>
 

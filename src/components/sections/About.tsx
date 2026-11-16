@@ -6,7 +6,7 @@ import { Check } from "@/components/ui/Icons";
 import { Reveal } from "@/components/ui/Reveal";
 
 /**
- * História / Quem somos — 1994 → hoje, apenas marcos confirmados
+ * História / Quem somos — 2004 → hoje, apenas marcos confirmados
  * (2009/Melancia e Cia e Uruana-GO ficam em HISTORY_TO_VALIDATE, fora do ar).
  * Fotos de arquivo recuperadas do site legado: fachada da JR Frutas Atacadista
  * e o box no CEASA Goiânia em 2010 (registro de 2010, não do início da empresa).
@@ -24,7 +24,7 @@ export function About() {
                 Desde {site.foundingYear}, a ponte entre o campo e o seu negócio.
               </h2>
               <p className="mt-5 max-w-[50ch] text-[1rem] leading-relaxed text-black/68">
-                A JR Frutas atua no atacado de frutas há mais de 30 anos. Frutas selecionadas, estrutura própria e atendimento
+                A JR Frutas atua no atacado de frutas há mais de 20 anos. Frutas selecionadas, estrutura própria e atendimento
                 direto por unidade — com confiança, transparência e compromisso em cada entrega.
               </p>
             </Reveal>
@@ -64,7 +64,7 @@ export function About() {
                   <p className="mt-1.5 max-w-[44ch] text-[0.95rem] leading-relaxed text-black/65">{h.text}</p>
                   {i === 0 ? (
                     <p className="caption mt-6 inline-flex rounded-full border border-black/15 px-3 py-1.5 text-black/60">
-                      Mais de 30 anos de mercado
+                      Mais de 20 anos de mercado
                     </p>
                   ) : null}
                   {h.year === "2010" ? <ArchiveBox /> : null}

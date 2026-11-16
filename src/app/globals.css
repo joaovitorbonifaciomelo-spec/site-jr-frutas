@@ -176,7 +176,7 @@
   font-weight: 800;
 }
 
-/* Numerais monumentais (1994, capítulos) */
+/* Numerais monumentais (ano de fundação, capítulos) */
 @utility h-mega {
   font-family: var(--font-display);
   font-weight: 900;

@@ -9,7 +9,8 @@
  *
  * CONFIRMADO (cliente / arquivos do Grupo JR / auditoria do legado — docs/legacy-audit.md):
  * - Marca: JR Frutas Atacadista · razão social "JR. Comercial de Frutas"
- * - Desde 2004 (mais de 20 anos de mercado; corrigido pelo cliente em 16/11/2026) · +1.500 clientes atendidos
+ * - Desde 2006 (20 anos de mercado em 2026; ano confirmado pelo dono em 16/11/2026,
+ *   o legado dizia 1994) · +1.500 clientes atendidos
  * - E-mail: contato@jrfrutas.com.br · Instagram: @jr.frutas
  * - Unidade Goiânia: (62) 3522-9333 (fixo e WhatsApp) · Rodovia BR-153, Km 5,5,
  *   GP04, Box 06, Fazenda Retiro, CEASA · CEP 74675-090 (confirmado pelo cliente em 15/10/2026)
@@ -36,7 +37,7 @@ const GENERAL_WHATSAPP = process.env.NEXT_PUBLIC_WHATSAPP?.replace(/\D/g, "") ||
 /** Google Tag Manager — DESLIGADO por padrão. Ver .env.example (GTM-P7K9X4MP só após validar o container). */
 export const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID?.trim() || null;
 
-export const FOUNDING_YEAR = 2004;
+export const FOUNDING_YEAR = 2006;
 
 export const site = {
   name: "JR Frutas Atacadista",
@@ -48,7 +49,7 @@ export const site = {
   /** assinatura da marca */
   signature: "Cultivando qualidade.",
   description:
-    "Atacado de abacaxi, melancia, coco verde, coco seco e melão desde 2004. Frutas selecionadas, entregas rápidas e programadas e atendimento direto para mercados, feirantes e restaurantes a partir de Goiânia e Brasília.",
+    "Atacado de abacaxi, melancia, coco verde, coco seco e melão desde 2006. Frutas selecionadas, entregas rápidas e programadas e atendimento direto para mercados, feirantes e restaurantes a partir de Goiânia e Brasília.",
   url: SITE_URL ?? "http://localhost:3000",
   /** true somente quando NEXT_PUBLIC_SITE_URL estiver definido (domínio final) */
   urlConfigured: Boolean(SITE_URL),
@@ -177,7 +178,7 @@ export const units: Unit[] = [
 export type IconName = "award" | "users" | "truck" | "pin" | "check" | "box" | "field" | "select";
 
 export const authority = {
-  since: { value: String(FOUNDING_YEAR), label: "Desde", detail: "Mais de 20 anos de mercado" },
+  since: { value: String(FOUNDING_YEAR), label: "Desde", detail: "20 anos de mercado" },
   items: [
     { value: "+1.500", label: "clientes atendidos", icon: "users" as IconName },
     { value: "Entregas", label: "rápidas e programadas", icon: "truck" as IconName },
@@ -316,11 +317,11 @@ export const clients: ClientLogo[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// HISTÓRIA — só marcos confirmados (2004 → hoje)
+// HISTÓRIA — só marcos confirmados (2006 → hoje)
 // ---------------------------------------------------------------------------
 export const history = [
   {
-    year: "2004",
+    year: "2006",
     title: "O começo",
     text: "A JR Frutas inicia as atividades no atacado de frutas.",
   },
@@ -338,7 +339,7 @@ export const history = [
 
 /**
  * Fotos de arquivo do marco de 2010 (EXIF: fev. a abr./2010, recuperadas do site legado).
- * NUNCA apresentar como imagens de 2004: não há foto daquele período.
+ * NUNCA apresentar como imagens de 2006: não há foto daquele período.
  */
 export const historyPhotos = {
   box: {
@@ -362,7 +363,7 @@ export const historyPhotos = {
 export const HISTORY_TO_VALIDATE = [
   "2009 — aquisição da Melancia e Cia (Goiânia)",
   "Escritório de compras em Uruana-GO",
-  "Ano de abertura da unidade de Brasília (o legado cita 1994 e 2006; 1994 é anterior à fundação, em 2004)",
+  "Ano de abertura da unidade de Brasília (o legado cita 1994 e 2006; a empresa começou em 2006)",
 ] as const;
 
 export const aboutPillars: { title: string; text: string }[] = [
@@ -382,7 +383,7 @@ export const faq = [
   },
   {
     q: "Desde quando a JR Frutas atua?",
-    a: "Desde 2004. São mais de 20 anos no atacado de frutas e mais de 1.500 clientes atendidos.",
+    a: "Desde 2006. São 20 anos no atacado de frutas e mais de 1.500 clientes atendidos.",
   },
   {
     q: "Quais regiões são atendidas?",

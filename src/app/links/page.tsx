@@ -5,7 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
   title: `${site.shortName} — WhatsApp, produtos e unidades`,
-  description: "Atacado de abacaxi, melancia, coco e melão desde 2004, em Goiânia e Brasília. Fale com a JR Frutas.",
+  description: "Atacado de abacaxi, melancia, coco e melão desde 2006, em Goiânia e Brasília. Fale com a JR Frutas.",
   path: "/links",
   image: "/og-links.jpg",
   absolute: true,
